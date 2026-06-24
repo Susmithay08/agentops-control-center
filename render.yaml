@@ -1,0 +1,18 @@
+# Render Blueprint — deploys the AgentOps backend as a free web service.
+# In Render: New + → "Blueprint" → pick this repo. Render reads this file.
+# The frontend is deployed separately on Vercel (see README → Deployment).
+services:
+  - type: web
+    name: agentops-backend
+    runtime: node
+    rootDir: backend
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      # Leave DATABASE_URL unset to use the in-memory store (zero config).
+      # To persist data, add a Render PostgreSQL instance and set DATABASE_URL.

@@ -1,0 +1,24 @@
+# Optional PostgreSQL for the backend. Free + local, no cloud account needed.
+#   docker compose up -d
+# then start the backend with:
+#   DATABASE_URL=postgres://agentops:agentops@localhost:5433/agentops npm start
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: agentops-pg
+    environment:
+      POSTGRES_USER: agentops
+      POSTGRES_PASSWORD: agentops
+      POSTGRES_DB: agentops
+    ports:
+      - '5433:5432'
+    volumes:
+      - agentops_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U agentops']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  agentops_pgdata:
