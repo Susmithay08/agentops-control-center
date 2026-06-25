@@ -1,7 +1,11 @@
-# Render Blueprint — deploys the AgentOps backend as a free web service.
-# In Render: New + → "Blueprint" → pick this repo. Render reads this file.
-# The frontend is deployed separately on Vercel (see README → Deployment).
+# Render Blueprint — deploys BOTH the backend API and the Next.js frontend
+# as free web services. In Render: New + → "Blueprint" → pick this repo.
+#
+# After the first deploy, set the frontend's NEXT_PUBLIC_API_BASE to the
+# backend's public URL (shown in the backend service header), then redeploy
+# the frontend. NEXT_PUBLIC_* vars are baked in at build time.
 services:
+  # ---- Backend: Express REST API (in-memory store, zero config) ----
   - type: web
     name: agentops-backend
     runtime: node
@@ -14,5 +18,22 @@ services:
     envVars:
       - key: NODE_VERSION
         value: "20"
-      # Leave DATABASE_URL unset to use the in-memory store (zero config).
-      # To persist data, add a Render PostgreSQL instance and set DATABASE_URL.
+      # Leave DATABASE_URL unset to use the in-memory store.
+      # To persist data, add a Render PostgreSQL instance and set it here.
+
+  # ---- Frontend: Next.js (App Router, SSR) ----
+  - type: web
+    name: agentops-frontend
+    runtime: node
+    rootDir: frontend
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      # Set this to the backend service's public URL, e.g.
+      # https://agentops-backend.onrender.com — then redeploy this service.
+      - key: NEXT_PUBLIC_API_BASE
+        sync: false
